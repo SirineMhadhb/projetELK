@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Kibana</title>
+    <style>
+        /* Global Styles */
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+        }
+        h1 {
+            color: #333;
+            text-align: center;
+        }
+        /* Navbar Styles */
+        nav {
+            background-color: #333;
+            padding: 10px;
+        }
+        nav a {
+            color: white;
+            text-decoration: none;
+            padding: 12px 20px;
+            display: inline-block;
+        }
+        nav a:hover {
+            background-color: #575757;
+        }
+        /* Form & Search */
+        #search-container {
+            position: relative;
+            margin: 20px auto;
+            text-align: center;
+            max-width: 500px;
+        }
+        #searchInput {
+            width: 100%;
+            padding: 10px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+        }
+        #suggestions {
+            list-style-type: none;
+            padding: 0;
+            max-height: 200px;
+            overflow-y: auto;
+            border: 1px solid #ddd;
+            position: absolute;
+            background-color: white;
+            width: 100%;
+            z-index: 10;
+            display: none;
+        }
+        #suggestions li {
+            cursor: pointer;
+            padding: 5px;
+            background-color: #f0f0f0;
+            margin: 2px 0;
+        }
+        #suggestions li:hover {
+            background-color: #dcdcdc;
+        }
+        /* Iframe */
+        #dashboard-container {
+            text-align: center;
+            margin-top: 40px;
+        }
+        iframe {
+            border: none;
+            border-radius: 8px;
+        }
+        /* Container */
+        .container {
+            text-align: center;
+            padding: 50px;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Navbar -->
+    <nav>
+        <a href="{{ url_for('index') }}">Accueil</a>
+        <a href="{{ url_for('upload_file') }}">Uploader un fichier</a>
+        <a href="{{ url_for('dashboard') }}">Dashboard</a>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="container">
+        <h1>Dashboard Kibana</h1>
+        
+        <!-- Formulaire de recherche Elasticsearch -->
+        <div id="search-container">
+            <label for="searchInput">Rechercher un dashboard:</label>
+            <input type="text" id="searchInput" onkeyup="filterDashboards()" placeholder="Chercher un dashboard...">
+            <!-- Liste des suggestions -->
+            <ul id="suggestions"></ul>
+        </div>
+
+        <!-- Zone d'affichage du dashboard sélectionné -->
+        <div id="dashboard-container">
+            <iframe id="dashboard-frame" src="" height="600" width="800" style="display:none;"></iframe>
+        </div>
+    </div>
+
+    <script>
+        const visualizations = [
+            { "title": "produit", "url": "http://localhost:5601/goto/c3d1f320-ae39-11ef-98eb-21fea7a6d62c" },
+            { "title": "Monthly Revenue", "url": "http://localhost:5601/goto/3e233420-ae3c-11ef-98eb-21fea7a6d62d" },
+            { "title": "personne", "url": "http://localhost:5601/app/dashboards#/view/0bfb76b0-a6b7-11ef-8607-8dd67fd50ce3?embed=true&_g=(filters%3A!()%2CrefreshInterval%3A(pause%3A!t%2Cvalue%3A0)%2Ctime%3A(from%3Anow-90d%2Fd%2Cto%3Anow" }
+        ];
+
+        function filterDashboards() {
+            const query = document.getElementById('searchInput').value.toLowerCase();
+            const suggestions = document.getElementById('suggestions');
+            suggestions.innerHTML = '';  // Reset suggestions list
+
+            // Si la requête est vide, masquer la liste
+            if (query === "") {
+                suggestions.style.display = 'none';
+                return;
+            }
+
+            // Filtrer les visualisations en fonction de la recherche
+            const filtered = visualizations.filter(viz => viz.title.toLowerCase().includes(query));
+
+            // Si des éléments sont trouvés, afficher la liste
+            if (filtered.length > 0) {
+                suggestions.style.display = 'block';
+            } else {
+                suggestions.style.display = 'none';  // Masquer si rien n'est trouvé
+            }
+
+            // Afficher les suggestions filtrées
+            filtered.forEach(viz => {
+                const li = document.createElement('li');
+                li.textContent = viz.title;
+                li.onclick = function() {
+                    loadDashboard(viz.url);
+                    document.getElementById('searchInput').value = viz.title;  // Mettre à jour le champ de recherche
+                    suggestions.style.display = 'none';  // Masquer la liste après sélection
+                };
+                suggestions.appendChild(li);
+            });
+        }
+
+        // Fonction pour charger un dashboard dans l'iframe
+        function loadDashboard(url) {
+            var iframe = document.getElementById("dashboard-frame");
+            iframe.src = url;
+            iframe.style.display = "block";  // Afficher l'iframe
+        }
+    </script>
+
+</body>
+</html>
