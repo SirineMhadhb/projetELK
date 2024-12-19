@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Recherche dans Elasticsearch</title>
+</head>
+<body>
+    <h1>Recherche dans Elasticsearch</h1>
+    
+    <!-- Formulaire de recherche -->
+    <form method="POST" action="/search_data>
+        <label for="index">Choisir un index :</label>
+        <select name="index" id="index" required>
+            {% for index in indices %}
+                <option value="{{ index }}">{{ index }}</option>
+            {% endfor %}
+        </select>
+
+        <label for="query">Requête :</label>
+        <input type="text" id="query" name="query" placeholder="Ex. : produit:Table" required>
+
+        <button type="submit">Rechercher</button>
+    </form>
+
+    {% if results %}
+        <h2>Résultats</h2>
+        <ul>
+            {% for hit in results.hits.hits %}
+                <li>{{ hit._source }}</li>
+            {% endfor %}
+        </ul>
+    {% endif %}
+</body>
+</html>
